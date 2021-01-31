@@ -1,6 +1,7 @@
 package net.fabricmc.optilayeredmod.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.optilayeredmod.ducks.FlipTexturesAccess;
 import net.fabricmc.optilayeredmod.ducks.ShadersAccess;
 import net.fabricmc.optilayeredmod.ducks.ShadersFramebufferAccess;
@@ -19,6 +20,7 @@ import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
@@ -76,11 +78,13 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
 
 
 
-    void glTexImage2D(int texture, int level, int internalformat, int width, int height) {
+    void glTexImage2D(int texture, int level, int internalformat, int width, int height, int border, int format, int type, ByteBuffer data) {
         if (this.texTarget == GL_TEXTURE_2D) {
-            GL45.glTextureStorage2D(texture, level, internalformat, width, height);
+            GlStateManager.bindTexture(texture); // use internal, native
+            GL45.glTexImage2D(this.texTarget, level, internalformat, width, height, border, format, type, data);
         } else {
-            GL45.glTextureStorage3D(texture, level, internalformat, width, height, this.layerCount);
+            GL11.glBindTexture(this.texTarget, (int)texture); // not conflicting target
+            GL45.glTexImage3D(this.texTarget, level, internalformat, width, height, this.layerCount, border, format, type, data);
         }
     }
 
@@ -120,7 +124,13 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     public void flipColorTexture(int index) {
         this.bindFramebuffer();
         this.colorTexturesFlip.flip(index);
-        GL45.glBindTextureUnit(this.colorTextureUnits[index], this.colorTexturesFlip.getA(index));
+        if (this.texTarget == GL_TEXTURE_2D) {
+            GlStateManager.activeTexture(GL_TEXTURE0 + this.colorTextureUnits[index]);
+            GlStateManager.bindTexture(this.colorTexturesFlip.getA(index));
+        } else {
+            GL45.glBindTextureUnit(this.colorTextureUnits[index], this.colorTexturesFlip.getA(index));
+        }
+
         this.setFramebufferTexture2D(GL_FRAMEBUFFER, this.attachOffset + index, this.texTarget, this.colorTexturesFlip.getB(index), 0);
     }
 
@@ -186,7 +196,12 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     public void bindDepthTextures(int[] depthTextureImageUnits) {
         this.bindFramebuffer();
         for(int i = 0; i < this.usedDepthBuffers; ++i) {
-            GL45.glBindTextureUnit(depthTextureImageUnits[i], this.depthTextures.get(i));
+            if (this.texTarget == GL_TEXTURE_2D) {
+                GlStateManager.activeTexture(GL_TEXTURE0 + this.depthTextureUnits[i]);
+                GlStateManager.bindTexture(this.depthTextures.get(i));
+            } else {
+                GL45.glBindTextureUnit(depthTextureImageUnits[i], this.depthTextures.get(i));
+            }
         }
     }
 
@@ -194,7 +209,12 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     public void bindColorTextures(int startColorBuffer, int[] colorTextureImageUnits) {
         this.bindFramebuffer();
         for(int i = startColorBuffer; i < this.usedColorBuffers; ++i) {
-            GL45.glBindTextureUnit(colorTextureImageUnits[i], this.colorTexturesFlip.getA(i));
+            if (this.texTarget == GL_TEXTURE_2D) {
+                GlStateManager.activeTexture(GL_TEXTURE0 + colorTextureImageUnits[i]);
+                GlStateManager.bindTexture(this.colorTexturesFlip.getA(i));
+            } else {
+                GL45.glBindTextureUnit(colorTextureImageUnits[i], this.colorTexturesFlip.getA(i));
+            }
         }
     }
 
@@ -226,7 +246,7 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     }
 
     @Overwrite(remap = false)
-    public void setup() {
+    public void setup() throws Exception {
         if (this._exists()) {
             this._delete();
         }
@@ -275,8 +295,7 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
             if (this.depthFilterHardware[status]) {
                 GL45.glTextureParameteri(texture, 34892, 34894);
             }
-
-            this.glTexImage2D(this.depthTextures.get(status), 0, 6402, this.width, this.height);
+            this.glTexImage2D(this.depthTextures.get(status), 0, GL_DEPTH_COMPONENT32F, this.width, this.height, 0, 6402, 5126, (ByteBuffer)null);
         }
 
         this.setFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texTarget, this.depthTextures.get(0), 0);
@@ -291,7 +310,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
             filter = this.colorFilterNearest[status] ? 9728 : 9729;
             GL45.glTextureParameteri(texture, 10241, filter);
             GL45.glTextureParameteri(texture, 10240, filter);
-            this.glTexImage2D(texture, 0, this.buffersFormat[status], this.width, this.height);
+            //this.glTexImage2D(texture, 0, this.buffersFormat[status], this.width, this.height);
+            this.glTexImage2D(texture, 0, this.buffersFormat[status], this.width, this.height, 0, Shaders.getPixelFormat(this.buffersFormat[status]), 33639, (ByteBuffer)null);
+
             this.setFramebufferTexture2D(GL_FRAMEBUFFER, this.attachOffset + status, texTarget, texture, 0);
             Shaders.checkGLError("FBS " + this.name + " colorA");
         }
@@ -304,7 +325,7 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
             filter = this.colorFilterNearest[status] ? 9728 : 9729;
             GL45.glTextureParameteri(texture, 10241, filter);
             GL45.glTextureParameteri(texture, 10240, filter);
-            this.glTexImage2D(texture, 0, this.buffersFormat[status], this.width, this.height);
+            this.glTexImage2D(texture, 0, this.buffersFormat[status], this.width, this.height, 0, Shaders.getPixelFormat(this.buffersFormat[status]), 33639, (ByteBuffer)null);
             Shaders.checkGLError("FBS " + this.name + " colorB");
         }
 
@@ -320,6 +341,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         } else {
             SMCLog.info("Framebuffer created: " + this.name);
         }
+
+        //throw new Exception("TEST");
+
     }
 
 }
