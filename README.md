@@ -2,7 +2,7 @@
 
 ## What is it?
 
-This is mod, that adds multi-layered framebuffers option into Optifine shaders. This is experimental mod, and adds currently unlimited layer count.
+This is mod, that adds multi-layered framebuffers option into Optifine shaders. This is experimental mod, and adds currently unlimited variable layer count.
 
 ### `shaders.properties`
 
