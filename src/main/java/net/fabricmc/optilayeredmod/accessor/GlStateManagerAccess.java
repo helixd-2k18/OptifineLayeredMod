@@ -14,23 +14,18 @@ import java.util.function.Supplier;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 
 @Mixin(GlStateManager.class)
-public abstract class GlStateManagerAccess {
+public interface GlStateManagerAccess {
 
-    //@Accessor("TEXTURES")
-    //public static GlStateManager.Texture2DState[] getTextures() throws IllegalAccessException {
-    //    return (GlStateManager.Texture2DState[]) FieldUtils.readField(GlStateManager.class, "field_20483", true);
-    //}
+    @Accessor
+    static GlStateManager.Texture2DState[] getTextures() {
+        throw new AssertionError();
+    }
 
-    //@Accessor("activeTexture")
-    //public static int getActiveTexture() throws IllegalAccessException {
-    //    throw new AssertionError();
-        //return (int) FieldUtils.readField(GlStateManager.class, "field_20482", true);
-    //}
+    @Accessor
+    static int getActiveTexture() {
+        throw new AssertionError();
+    }
 
-    //@Accessor("activeTexture")
-    //public static void setActiveTexture(int activeTexture) throws IllegalAccessException {
-        //throw new AssertionError();
-        //FieldUtils.writeField(GlStateManager.class, "field_20482", activeTexture, true);
-    //}
-
+    @Accessor
+    static void setActiveTexture(int activeTexture) {}
 }

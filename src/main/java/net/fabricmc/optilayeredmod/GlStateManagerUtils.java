@@ -16,8 +16,8 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 public interface GlStateManagerUtils {
 
     public static void bindTexture(int texture) throws IllegalAccessException {
-        GlStateManager.Texture2DState[] TEXTURES = GlStateManager.TEXTURES;
-        int activeTexture = GlStateManager.activeTexture;
+        GlStateManager.Texture2DState[] TEXTURES = GlStateManagerAccess.getTextures();
+        int activeTexture = GlStateManagerAccess.getActiveTexture();
 
         RenderSystem.assertThread((Supplier<Boolean>)((Supplier)RenderSystem::isOnRenderThreadOrInit));
         if (texture != TEXTURES[activeTexture].boundTexture) {
@@ -27,8 +27,8 @@ public interface GlStateManagerUtils {
     }
 
     public static void bindTexture(int target, int texture) throws IllegalAccessException {
-        GlStateManager.Texture2DState[] TEXTURES = GlStateManager.TEXTURES;
-        int activeTexture = GlStateManager.activeTexture;
+        GlStateManager.Texture2DState[] TEXTURES = GlStateManagerAccess.getTextures();
+        int activeTexture = GlStateManagerAccess.getActiveTexture();
 
         RenderSystem.assertThread((Supplier<Boolean>)((Supplier)RenderSystem::isOnRenderThreadOrInit));
         if (texture != TEXTURES[activeTexture].boundTexture) {
@@ -38,13 +38,13 @@ public interface GlStateManagerUtils {
     }
 
     public static void bindTextureUnit(int unit, int texture) throws IllegalAccessException {
-        GlStateManager.Texture2DState[] TEXTURES = GlStateManagerAccess.TEXTURES;
-        int activeTexture = GlStateManager.activeTexture;
+        GlStateManager.Texture2DState[] TEXTURES = GlStateManagerAccess.getTextures();
+        int activeTexture = GlStateManagerAccess.getActiveTexture();
 
         RenderSystem.assertThread((Supplier<Boolean>)((Supplier)RenderSystem::isOnRenderThread));
         if (activeTexture != unit || texture != TEXTURES[unit].boundTexture) {
             TEXTURES[unit].boundTexture = texture;
-            GlStateManager.activeTexture = unit;
+            GlStateManagerAccess.setActiveTexture(unit);
             GL45.glBindTextureUnit(unit, texture);
         }
     }

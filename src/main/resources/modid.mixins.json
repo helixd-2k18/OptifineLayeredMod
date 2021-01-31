@@ -1,11 +1,12 @@
 {
   "required": true,
   "minVersion": "0.8",
-  "package": "net.fabricmc.optilayeredmod.client",
+  "package": "net.fabricmc.optilayeredmod.accessor",
   "compatibilityLevel": "JAVA_8",
   "mixins": [
   ],
   "client": [
+    "GlStateManagerAccess"
   ],
   "injectors": {
     "defaultRequire": 1
