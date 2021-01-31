@@ -1,5 +1,6 @@
 package net.fabricmc.optilayeredmod.mixin;
 
+import net.fabricmc.optilayeredmod.ShadersAddon;
 import net.fabricmc.optilayeredmod.ducks.ShaderPackParserAccess;
 import net.fabricmc.optilayeredmod.ducks.ShadersFramebufferAccess;
 import net.optifine.Config;
@@ -35,47 +36,45 @@ public abstract class ShaderPackParserMixin implements ShaderPackParserAccess {
             {
                 String s1 = astring[0];
                 String s2 = astring[1];
-                String s3 = astring[1];
+                String s3 = astring[2];
 
                 if (s1.equals("layers"))
                 {
                     if (s2.equals("color")) {
-                        if (ShadersAccess.getDfb() != null) {
-                            if (s3.equals("enable")) {
-                                String s4 = props.getProperty(s).trim();
-                                if (s4.equals("true")) {
-                                    ((ShadersFramebufferAccess) ShadersAccess.getDfb()).setTextureTarget(GL_TEXTURE_2D_ARRAY);
-                                } else {
-                                    ((ShadersFramebufferAccess) ShadersAccess.getDfb()).setTextureTarget(GL_TEXTURE_2D);
-                                }
-                            }
 
-                            if (s3.equals("count")) {
-                                String s4 = props.getProperty(s).trim();
-                                ((ShadersFramebufferAccess) ShadersAccess.getDfb()).setLayerCount(parseInt(s4));
+                        if (s3.equals("enable")) {
+                            String s4 = props.getProperty(s).trim();
+
+                            if (s4.equals("true")) {
+                                ShadersAddon.setColorTextureTarget(GL_TEXTURE_2D_ARRAY);
+                            } else {
+                                ShadersAddon.setColorTextureTarget(GL_TEXTURE_2D);
                             }
-                        } else {
-                            SMCLog.severe("Framebuffer doesn't exists");
                         }
+
+                        if (s3.equals("count")) {
+                            String s4 = props.getProperty(s).trim();
+                            ShadersAddon.setColorLayerCount(parseInt(s4));
+                        }
+
                     } else
                     if (s2.equals("shadow")) {
-                        if (ShadersAccess.getSfb() != null) {
-                            if (s3.equals("enable")) {
-                                String s4 = props.getProperty(s).trim();
-                                if (s4.equals("true")) {
-                                    ((ShadersFramebufferAccess) ShadersAccess.getSfb()).setTextureTarget(GL_TEXTURE_2D_ARRAY);
-                                } else {
-                                    ((ShadersFramebufferAccess) ShadersAccess.getSfb()).setTextureTarget(GL_TEXTURE_2D);
-                                }
-                            }
 
-                            if (s3.equals("count")) {
-                                String s4 = props.getProperty(s).trim();
-                                ((ShadersFramebufferAccess) ShadersAccess.getSfb()).setLayerCount(parseInt(s4));
+                        if (s3.equals("enable")) {
+                            String s4 = props.getProperty(s).trim();
+
+                            if (s4.equals("true")) {
+                                ShadersAddon.setShadowTextureTarget(GL_TEXTURE_2D_ARRAY);
+                            } else {
+                                ShadersAddon.setShadowTextureTarget(GL_TEXTURE_2D);
                             }
-                        } else {
-                            SMCLog.severe("Shadow framebuffer doesn't exists");
                         }
+
+                        if (s3.equals("count")) {
+                            String s4 = props.getProperty(s).trim();
+                            ShadersAddon.setShadowLayerCount(parseInt(s4));
+                        }
+
                     }
                 }
             }

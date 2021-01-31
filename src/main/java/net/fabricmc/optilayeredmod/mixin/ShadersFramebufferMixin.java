@@ -48,9 +48,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
 
 
     @Unique private int glRenderbuffer = 0;
-    @Unique private int texTarget = GL_TEXTURE_2D;
-    @Unique private int layerCount = 1;
     @Unique private int attachOffset = GL_COLOR_ATTACHMENT0;
+    @Unique private static int texTarget = GL_TEXTURE_2D;
+    @Unique private static int layerCount = 1;
 
 
     @Override
@@ -60,7 +60,7 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
 
     @Override
     public void setTextureTarget(int texTarget) {
-        this.layerCount = texTarget;
+        this.texTarget = texTarget;
     }
 
 
@@ -81,7 +81,6 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
 
     @Invoker(value="setDrawBuffers", remap = false)
     abstract public void _setDrawBuffers(DrawBuffers drawBuffersIn);
-
 
 
     void glTexImage2D(int texture, int level, int internalformat, int width, int height, int border, int format, int type, ByteBuffer data) throws IllegalAccessException {
@@ -139,12 +138,12 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         for(int i = 0; i < this.usedColorBuffers; ++i) {
             if (buffersClear[i]) {
                 Vector4f col = clearColors[i];
-                for (int l=0;l<this.layerCount;l++) {
+                //for (int l=0;l<this.layerCount;l++) {
                     if (this.colorTexturesFlip.isChanged(i)) {
-                        glClearTexImage(this.colorTexturesFlip.getB(i), l, GL_RGBA, GL_FLOAT, new float[]{col.getX(), col.getY(), col.getZ(), col.getW()});
+                        glClearTexImage(this.colorTexturesFlip.getB(i), 0, GL_RGBA, GL_FLOAT, new float[]{col.getX(), col.getY(), col.getZ(), col.getW()});
                     }
-                    glClearTexImage(this.colorTexturesFlip.getA(i), l, GL_RGBA, GL_FLOAT, new float[]{col.getX(), col.getY(), col.getZ(), col.getW()});
-                }
+                    glClearTexImage(this.colorTexturesFlip.getA(i), 0, GL_RGBA, GL_FLOAT, new float[]{col.getX(), col.getY(), col.getZ(), col.getW()});
+                //}
             }
         }
     }
@@ -152,9 +151,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     @Overwrite(remap = false)
     public void clearDepthBuffer(Vector4f col) {
         this.bindFramebuffer();
-        for (int l=0;l<this.layerCount;l++) {
-            glClearTexImage(this.depthTextures.get(0), l, GL_DEPTH_COMPONENT, GL_FLOAT, new float[]{col.getX(), col.getY(), col.getZ(), col.getW()});
-        }
+        //for (int l=0;l<this.layerCount;l++) {
+            glClearTexImage(this.depthTextures.get(0), 0, GL_DEPTH_COMPONENT, GL_FLOAT, new float[]{col.getX(), col.getY(), col.getZ(), col.getW()});
+        //}
     }
 
     @Overwrite(remap = false)
@@ -244,6 +243,13 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         //if (this.layerCount <= 1) { this.texTarget = GL_TEXTURE_2D; }
         if (this.texTarget == GL_TEXTURE_2D) { this.layerCount = 1; };
 
+        if (this.texTarget == GL_TEXTURE_2D) {
+            SMCLog.info("USED_TEXTURE_2D");
+        } else
+        if (this.texTarget == GL_TEXTURE_2D_ARRAY) {
+            SMCLog.info("OMG! USED_TEXTURE_2D_ARRAY");
+        }
+
         this.colorTexturesFlip = new FlipTextures(this.name + "ColorTexturesFlip", this.usedColorBuffers);
         this.depthTextures = BufferUtils.createIntBuffer(this.usedDepthBuffers);
         this.drawColorTextures = new int[this.usedColorBuffers];
@@ -258,17 +264,17 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
             this.drawBuffers.put(status, this.attachOffset + status);
         }
 
+        //
         this.glFramebuffer = GL45.glCreateFramebuffers();//EXTFramebufferObject.glGenFramebuffersEXT();
-        this.glRenderbuffer = GL45.glCreateRenderbuffers();
+        //this.glRenderbuffer = GL45.glCreateRenderbuffers();
+        //glNamedRenderbufferStorage(this.glRenderbuffer, GL_DEPTH_COMPONENT32F, this.width, this.height);
 
-        glNamedRenderbufferStorage(this.glRenderbuffer, GL_DEPTH_COMPONENT32F, this.width, this.height);
-
-
+        //
         this.bindFramebuffer();
         GL30.glDrawBuffers(0);
         GL30.glReadBuffer(0);
-        glCreateTextures(texTarget, (IntBuffer)this.depthTextures.clear().limit(this.usedDepthBuffers));
-        ((FlipTexturesAccess)this.colorTexturesFlip.clear().limit(this.usedColorBuffers)).genTextures(texTarget);
+        glCreateTextures(this.texTarget, (IntBuffer)this.depthTextures.clear().limit(this.usedDepthBuffers));
+        ((FlipTexturesAccess)this.colorTexturesFlip.clear().limit(this.usedColorBuffers)).genTextures(this.texTarget);
         this.depthTextures.position(0);
         this.colorTexturesFlip.position(0);
 
@@ -287,8 +293,8 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
             this.glTexImage2D(this.depthTextures.get(status), 0, GL_DEPTH_COMPONENT32F, this.width, this.height, 0, 6402, 5126, (ByteBuffer)null);
         }
 
-        this.setFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, texTarget, this.depthTextures.get(0), 0);
-        glNamedFramebufferRenderbuffer(this.glFramebuffer, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this.glRenderbuffer);
+        this.setFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, this.texTarget, this.depthTextures.get(0), 0);
+        //glNamedFramebufferRenderbuffer(this.glFramebuffer, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, this.glRenderbuffer);
         Shaders.checkGLError("FBS " + this.name + " depth");
 
         for(status = 0; status < this.usedColorBuffers; ++status) {
@@ -299,10 +305,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
             filter = this.colorFilterNearest[status] ? 9728 : 9729;
             GL45.glTextureParameteri(texture, 10241, filter);
             GL45.glTextureParameteri(texture, 10240, filter);
-            //this.glTexImage2D(texture, 0, this.buffersFormat[status], this.width, this.height);
             this.glTexImage2D(texture, 0, this.buffersFormat[status], this.width, this.height, 0, Shaders.getPixelFormat(this.buffersFormat[status]), 33639, (ByteBuffer)null);
 
-            this.setFramebufferTexture2D(GL_FRAMEBUFFER, this.attachOffset + status, texTarget, texture, 0);
+            this.setFramebufferTexture2D(GL_FRAMEBUFFER, this.attachOffset + status, this.texTarget, texture, 0);
             Shaders.checkGLError("FBS " + this.name + " colorA");
         }
 
@@ -327,6 +332,14 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         status = EXTFramebufferObject.glCheckFramebufferStatusEXT(36160);
         if (status != 36053) {
             Shaders.printChatAndLogError("[Shaders] Error creating framebuffer: " + this.name + ", status: " + status);
+
+            if (status == GL_FRAMEBUFFER_UNDEFINED ) { SMCLog.severe("Reason translate: " + "GL_FRAMEBUFFER_UNDEFINED"); };
+            if (status == GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT) { SMCLog.severe("Reason translate: " + "GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT"); };
+            if (status == GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT) { SMCLog.severe("Reason translate: " + "GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT"); };
+            if (status == GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER) { SMCLog.severe("Reason translate: " + "GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER "); };
+            if (status == GL_FRAMEBUFFER_UNSUPPORTED) { SMCLog.severe("Reason translate: " + "GL_FRAMEBUFFER_UNSUPPORTED"); };
+            if (status == GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS) { SMCLog.severe("Reason translate: " + "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS"); };
+
         } else {
             SMCLog.info("Framebuffer created: " + this.name);
         }
