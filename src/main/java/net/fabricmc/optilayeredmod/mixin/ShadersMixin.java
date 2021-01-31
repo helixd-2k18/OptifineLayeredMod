@@ -32,10 +32,17 @@ public abstract class ShadersMixin {
 
     @Inject(method="setupFrameBuffer", remap = false, at = @At(value="INVOKE", target="Lnet/optifine/shaders/ShadersFramebuffer;setup()V", shift = At.Shift.BEFORE))
     private static void setFramebufferLayers(CallbackInfo info) {
-        SMCLog.info("Trying to take framebuffers...");
         if (ShadersAccess.getDfb() != null) {
             ((ShadersFramebufferAccess) ShadersAccess.getDfb()).setLayerCount(ShadersAddon.colorLayerCount);
             ((ShadersFramebufferAccess) ShadersAccess.getDfb()).setTextureTarget(ShadersAddon.colorTexTarget);
+        }
+    }
+
+    @Inject(method="setupShadowFrameBuffer", remap = false, at = @At(value="INVOKE", target="Lnet/optifine/shaders/ShadersFramebuffer;setup()V", shift = At.Shift.BEFORE))
+    private static void setShadowFramebufferLayers(CallbackInfo info) {
+        if (ShadersAccess.getSfb() != null) {
+            ((ShadersFramebufferAccess) ShadersAccess.getSfb()).setLayerCount(ShadersAddon.shadowLayerCount);
+            ((ShadersFramebufferAccess) ShadersAccess.getSfb()).setTextureTarget(ShadersAddon.shadowTexTarget);
         }
     }
 }
