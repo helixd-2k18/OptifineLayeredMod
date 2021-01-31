@@ -16,6 +16,7 @@
   "license": "CC0-1.0",
   "icon": "assets/modid/icon.png",
 
+  "accessWidener" : "modid.accesswidener",
   "environment": "*",
   "entrypoints": {
     "mm:early_risers": [
