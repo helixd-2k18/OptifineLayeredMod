@@ -5,6 +5,7 @@
     "FlipTexturesMixin",
     "ShaderPackParserMixin",
     "ShadersFramebufferMixin",
-    "ShadersMixin"
+    "ShadersMixin",
+    "ShadersAccess"
   ]
 }

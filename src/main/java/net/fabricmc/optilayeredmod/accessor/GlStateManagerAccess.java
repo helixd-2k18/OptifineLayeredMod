@@ -16,16 +16,18 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
 @Mixin(GlStateManager.class)
 public interface GlStateManagerAccess {
 
-    @Accessor
+    @Accessor("TEXTURES")
     static GlStateManager.Texture2DState[] getTextures() {
         throw new AssertionError();
     }
 
-    @Accessor
+    @Accessor("activeTexture")
     static int getActiveTexture() {
         throw new AssertionError();
     }
 
-    @Accessor
-    static void setActiveTexture(int activeTexture) {}
+    @Accessor("activeTexture")
+    static void setActiveTexture(int activeTexture) {
+
+    }
 }

@@ -10,4 +10,7 @@ public interface ShadersFramebufferAccess {
     public boolean _exists();
     public void _delete();
     public void _setDrawBuffers(DrawBuffers drawBuffersIn);
+
+    public void setTextureTarget(int texTarget);
+    public void setLayerCount(int layerCount);
 }

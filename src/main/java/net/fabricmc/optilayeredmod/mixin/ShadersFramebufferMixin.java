@@ -1,13 +1,10 @@
 package net.fabricmc.optilayeredmod.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.optilayeredmod.ducks.FlipTexturesAccess;
 import net.fabricmc.optilayeredmod.GlStateManagerUtils;
-import net.fabricmc.optilayeredmod.ducks.ShadersAccess;
 import net.fabricmc.optilayeredmod.ducks.ShadersFramebufferAccess;
 import net.minecraft.client.util.math.Vector4f;
-import net.optifine.render.GlBlendState;
 import net.optifine.shaders.*;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.*;
@@ -18,16 +15,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.nio.ByteBuffer;
-import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
-import java.util.function.Supplier;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL13.GL_TEXTURE0;
 import static org.lwjgl.opengl.GL30.GL_COLOR_ATTACHMENT0;
 import static org.lwjgl.opengl.GL30.GL_TEXTURE_2D_ARRAY;
-import static org.lwjgl.opengl.GL32.glFramebufferTexture;
 import static org.lwjgl.opengl.GL45.*;
 
 @Mixin(ShadersFramebuffer.class)
@@ -58,6 +51,17 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     @Unique private int texTarget = GL_TEXTURE_2D;
     @Unique private int layerCount = 1;
     @Unique private int attachOffset = GL_COLOR_ATTACHMENT0;
+
+
+    @Override
+    public void setLayerCount(int layerCount) {
+        this.layerCount = layerCount;
+    }
+
+    @Override
+    public void setTextureTarget(int texTarget) {
+        this.layerCount = texTarget;
+    }
 
 
     @Invoker(value="getGlFramebuffer", remap = false)
@@ -236,9 +240,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
             this._delete();
         }
 
-        if (this.layerCount > 1) {
-            this.texTarget = GL_TEXTURE_2D_ARRAY;
-        }
+        //if (this.layerCount > 1) { this.texTarget = GL_TEXTURE_2D_ARRAY; }
+        //if (this.layerCount <= 1) { this.texTarget = GL_TEXTURE_2D; }
+        if (this.texTarget == GL_TEXTURE_2D) { this.layerCount = 1; };
 
         this.colorTexturesFlip = new FlipTextures(this.name + "ColorTexturesFlip", this.usedColorBuffers);
         this.depthTextures = BufferUtils.createIntBuffer(this.usedDepthBuffers);
