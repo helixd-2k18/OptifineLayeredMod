@@ -49,8 +49,8 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
 
     @Unique private int glRenderbuffer = 0;
     @Unique private int attachOffset = GL_COLOR_ATTACHMENT0;
-    @Unique private static int texTarget = GL_TEXTURE_2D;
-    @Unique private static int layerCount = 1;
+    @Unique private int texTarget = GL_TEXTURE_2D;
+    @Unique private int layerCount = 1;
 
 
     @Override
