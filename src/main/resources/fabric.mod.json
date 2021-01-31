@@ -3,7 +3,7 @@
   "id": "modid",
   "version": "${version}",
 
-  "name": "Example Mod",
+  "name": "OptiLayeredMod",
   "description": "This is an example description! Tell everyone what your mod is about!",
   "authors": [
     "Me!"
@@ -18,8 +18,11 @@
 
   "environment": "*",
   "entrypoints": {
+    "mm:early_risers": [
+      "net.fabricmc.optilayeredmod.setup.OptiLayeredSetup"
+    ],
     "main": [
-      "net.fabricmc.example.ExampleMod"
+      "net.fabricmc.optilayeredmod.OptiLayeredMod"
     ]
   },
   "mixins": [
@@ -29,7 +32,8 @@
   "depends": {
     "fabricloader": ">=0.7.4",
     "fabric": "*",
-    "minecraft": "1.16.x"
+    "minecraft": "1.16.x",
+    "optifabric": ">=1.8.16"
   },
   "suggests": {
     "another-mod": "*"

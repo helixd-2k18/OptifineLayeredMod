@@ -10,6 +10,15 @@ archivesBaseName = project.archives_base_name
 version = project.mod_version
 group = project.maven_group
 
+repositories {
+	maven { url 'https://jitpack.io' }
+	flatDir {
+		dirs 'libs'
+	}
+}
+
+project.ext.lwjglVersion = "3.2.2"
+
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
@@ -18,9 +27,20 @@ dependencies {
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation 'com.github.qouteall:OptiFabric:llama-SNAPSHOT'
+	modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
 
+	modImplementation name: 'OptiFine_1.16.5_HD_U_G7_pre4sc3'
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
+
+	compile "org.lwjgl:lwjgl:${lwjglVersion}"
+	compile "org.lwjgl:lwjgl:${lwjglVersion}:natives-windows"
+
+	compile 'org.zeroturnaround:zt-zip:1.13'
+    compile('net.fabricmc:stitch:0.5.1+build.77') {
+        transitive = false
+    }
 }
 
 processResources {

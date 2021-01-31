@@ -1,0 +1,10 @@
+{
+  "parent": "modid.mixins.json",
+  "package": "net.fabricmc.optilayeredmod.mixin",
+  "mixins": [
+    "FlipTexturesMixin",
+    "ShaderPackParserMixin",
+    "ShadersFramebufferMixin",
+    "ShadersMixin"
+  ]
+}
