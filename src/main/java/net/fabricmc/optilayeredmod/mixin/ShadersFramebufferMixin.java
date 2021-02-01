@@ -136,11 +136,6 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         // bind flip
         GlStateManagerUtils.bindTextureUnit(this.colorTextureUnits[index], this.colorTexturesFlip.getA(index));
         this.setFramebufferTexture2D(GL_FRAMEBUFFER, this.attachOffset + index, this.texTarget, this.colorTexturesFlip.getB(index), 0);
-
-        // force copy layers
-        glNamedFramebufferReadBuffer(this.glFramebuffer, this.attachOffset + index);
-        glCopyTextureSubImage3D(this.colorTexturesFlip.getA(index), 0, 0, 0, 0, 0, 0, this.width, this.height);
-        glReadBuffer(0);
     }
 
     @Overwrite(remap = false)
