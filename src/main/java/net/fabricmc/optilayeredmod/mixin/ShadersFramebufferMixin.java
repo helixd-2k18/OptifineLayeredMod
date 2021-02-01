@@ -46,7 +46,7 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     @Shadow(remap = false) private int[] drawColorTexturesMap;
     @Shadow(remap = false) private boolean[] dirtyColorTextures;
 
-
+    @Unique private int glReadFramebuffer = 0;
     @Unique private int glRenderbuffer = 0;
     @Unique private int attachOffset = GL_COLOR_ATTACHMENT0;
     @Unique private int texTarget = GL_TEXTURE_2D;
@@ -136,6 +136,11 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         // bind flip
         GlStateManagerUtils.bindTextureUnit(this.colorTextureUnits[index], this.colorTexturesFlip.getA(index));
         this.setFramebufferTexture2D(GL_FRAMEBUFFER, this.attachOffset + index, this.texTarget, this.colorTexturesFlip.getB(index), 0);
+
+        // force copy layers
+        glNamedFramebufferReadBuffer(this.glFramebuffer, this.attachOffset + index);
+        glCopyTextureSubImage3D(this.colorTexturesFlip.getA(index), 0, 0, 0, 0, 0, 0, this.width, this.height);
+        glReadBuffer(0);
     }
 
     @Overwrite(remap = false)
@@ -193,13 +198,7 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         this.bindFramebuffer();
 
         //
-        glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, level);
-        //glNamedFramebufferTextureLayer(this._getGlFramebuffer(), attachment, texture, level, 1);
-        //if (this.texTarget == GL_TEXTURE_2D) {
-        //    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, this.texTarget, texture, level);
-        //} else {
-        //    glFramebufferTexture3D(GL_FRAMEBUFFER, attachment, this.texTarget, texture, level, 1);
-        ///}
+        glNamedFramebufferTexture(this._getGlFramebuffer(), attachment, texture, level);
     }
 
     @Overwrite(remap = false)
@@ -283,9 +282,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         }
 
         //
+        this.glReadFramebuffer = GL45.glCreateFramebuffers();
         this.glFramebuffer = GL45.glCreateFramebuffers();//EXTFramebufferObject.glGenFramebuffersEXT();
-        //this.glRenderbuffer = GL45.glCreateRenderbuffers();
-        //glNamedRenderbufferStorage(this.glRenderbuffer, GL_DEPTH_COMPONENT32F, this.width, this.height);
+        GL45.glNamedFramebufferDrawBuffers(this.glReadFramebuffer, new int[]{this.attachOffset});
 
         //
         this.bindFramebuffer();
