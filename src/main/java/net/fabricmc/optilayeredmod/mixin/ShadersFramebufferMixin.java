@@ -84,11 +84,15 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
 
 
     void glTexImage2D(int texture, int level, int internalformat, int width, int height, int border, int format, int type, ByteBuffer data) throws IllegalAccessException {
-        GlStateManagerUtils.bindTexture(this.texTarget, texture);
+        int texTarget = this.texTarget;
+
+        if (internalformat == GL_DEPTH_COMPONENT32F && texTarget == GL_TEXTURE_3D) { texTarget = GL_TEXTURE_2D_ARRAY; };
+
+        GlStateManagerUtils.bindTexture(texTarget, texture);
         if (this.texTarget == GL_TEXTURE_2D) {
-            GL45.glTexImage2D(this.texTarget, level, internalformat, width, height, border, format, type, data);
+            GL45.glTexImage2D(texTarget, level, internalformat, width, height, border, format, type, data);
         } else {
-            GL45.glTexImage3D(this.texTarget, level, internalformat, width, height, this.layerCount, border, format, type, data);
+            GL45.glTexImage3D(texTarget, level, internalformat, width, height, this.layerCount, border, format, type, data);
         }
     }
 
@@ -187,7 +191,13 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         this.bindFramebuffer();
 
         //
-        glNamedFramebufferTexture(this._getGlFramebuffer(), attachment, texture, level);
+        glFramebufferTexture(GL_FRAMEBUFFER, attachment, texture, level);
+        //glNamedFramebufferTextureLayer(this._getGlFramebuffer(), attachment, texture, level, 1);
+        //if (this.texTarget == GL_TEXTURE_2D) {
+        //    glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, this.texTarget, texture, level);
+        //} else {
+        //    glFramebufferTexture3D(GL_FRAMEBUFFER, attachment, this.texTarget, texture, level, 1);
+        ///}
     }
 
     @Overwrite(remap = false)
@@ -246,8 +256,14 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         if (this.texTarget == GL_TEXTURE_2D) {
             SMCLog.info("USED_TEXTURE_2D");
         } else
-        if (this.texTarget == GL_TEXTURE_2D_ARRAY) {
-            SMCLog.info("OMG! USED_TEXTURE_2D_ARRAY");
+        if (this.texTarget == GL_TEXTURE_3D) {
+            SMCLog.info("OMG! USED_TEXTURE_3D");
+        }
+
+        if (this.layerCount == 1) {
+            SMCLog.info("Something wrong...");
+        } else {
+            SMCLog.info("Layer count defined correctly...");
         }
 
         this.colorTexturesFlip = new FlipTextures(this.name + "ColorTexturesFlip", this.usedColorBuffers);
@@ -273,7 +289,7 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         this.bindFramebuffer();
         GL30.glDrawBuffers(0);
         GL30.glReadBuffer(0);
-        glCreateTextures(this.texTarget, (IntBuffer)this.depthTextures.clear().limit(this.usedDepthBuffers));
+        glCreateTextures(this.texTarget == GL_TEXTURE_2D ? GL_TEXTURE_2D : GL_TEXTURE_2D_ARRAY, (IntBuffer)this.depthTextures.clear().limit(this.usedDepthBuffers));
         ((FlipTexturesAccess)this.colorTexturesFlip.clear().limit(this.usedColorBuffers)).genTextures(this.texTarget);
         this.depthTextures.position(0);
         this.colorTexturesFlip.position(0);
@@ -282,8 +298,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         for(status = 0; status < this.usedDepthBuffers; ++status) {
             int texture = this.depthTextures.get(status);
 
-            GL45.glTextureParameteri(texture, 10242, 33071);
-            GL45.glTextureParameteri(texture, 10243, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_S, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_T, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_R, 33071);
             filter = this.depthFilterNearest[status] ? 9728 : 9729;
             GL45.glTextureParameteri(texture, 10241, filter);
             GL45.glTextureParameteri(texture, 10240, filter);
@@ -300,8 +317,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         for(status = 0; status < this.usedColorBuffers; ++status) {
             int texture = this.colorTexturesFlip.getA(status);
 
-            GL45.glTextureParameteri(texture, 10242, 33071);
-            GL45.glTextureParameteri(texture, 10243, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_S, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_T, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_R, 33071);
             filter = this.colorFilterNearest[status] ? 9728 : 9729;
             GL45.glTextureParameteri(texture, 10241, filter);
             GL45.glTextureParameteri(texture, 10240, filter);
@@ -314,8 +332,9 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
         for(status = 0; status < this.usedColorBuffers; ++status) {
             int texture = this.colorTexturesFlip.getB(status);
 
-            GL45.glTextureParameteri(texture, 10242, 33071);
-            GL45.glTextureParameteri(texture, 10243, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_S, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_T, 33071);
+            GL45.glTextureParameteri(texture, GL_TEXTURE_WRAP_R, 33071);
             filter = this.colorFilterNearest[status] ? 9728 : 9729;
             GL45.glTextureParameteri(texture, 10241, filter);
             GL45.glTextureParameteri(texture, 10240, filter);

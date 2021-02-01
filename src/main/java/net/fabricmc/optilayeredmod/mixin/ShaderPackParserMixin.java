@@ -21,6 +21,7 @@ import java.util.Set;
 
 import static java.lang.Integer.parseInt;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
+import static org.lwjgl.opengl.GL12.GL_TEXTURE_3D;
 import static org.lwjgl.opengl.GL30.GL_TEXTURE_2D_ARRAY;
 
 @Mixin(ShaderPackParser.class)
