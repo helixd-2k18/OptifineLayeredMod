@@ -132,6 +132,8 @@ public abstract class ShadersFramebufferMixin implements ShadersFramebufferAcces
     public void flipColorTexture(int index) throws IllegalAccessException {
         this.bindFramebuffer();
         this.colorTexturesFlip.flip(index);
+
+        // bind flip
         GlStateManagerUtils.bindTextureUnit(this.colorTextureUnits[index], this.colorTexturesFlip.getA(index));
         this.setFramebufferTexture2D(GL_FRAMEBUFFER, this.attachOffset + index, this.texTarget, this.colorTexturesFlip.getB(index), 0);
     }
