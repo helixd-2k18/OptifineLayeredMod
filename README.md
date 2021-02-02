@@ -21,11 +21,16 @@ layers.shadow.count=<N>
 - [Stackoverflow explanation](https://stackoverflow.com/a/18287271)
 - [Geometry shader layers](https://www.khronos.org/opengl/wiki/Geometry_Shader#Layered_rendering)
 
+## Required mods
+
+- **IMPORTANT!** [OptiFine 1.16.5_HD_U_G7_pre5](https://optifine.net/downloads) 
+- [Optifabric](https://minecraft.curseforge.com/projects/optifabric) with **Fabric**
+
 ## Setup
 
 1. Download package from [here](https://github.com/helixd2s/OptifineBlendMod/releases), and unzip archive
 2. Put `optifine-layered-mod-<version>` into `mods/` directory, or use MultiMC.
-3. Install Optifabric and Optifine as `mods/` (tested with `OptiFine_1.16.5_HD_U_G7_pre4sc3`). 
+3. Install [Optifabric](https://minecraft.curseforge.com/projects/optifabric) and [OptiFine](https://optifine.net/downloads) as `mods/` (tested with `OptiFine_1.16.5_HD_U_G7_pre4sc3`). 
 
 ## License
 
