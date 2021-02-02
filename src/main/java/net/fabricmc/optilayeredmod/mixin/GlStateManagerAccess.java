@@ -1,7 +1,8 @@
-package net.fabricmc.optilayeredmod.accessor;
+package net.fabricmc.optilayeredmod.mixin;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.optilayeredmod.GlStateManagerUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL45;
@@ -30,4 +31,7 @@ public interface GlStateManagerAccess {
     static void setActiveTexture(int activeTexture) {
 
     }
+
+
+
 }

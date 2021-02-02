@@ -2,6 +2,8 @@
   "parent": "modid.mixins.json",
   "package": "net.fabricmc.optilayeredmod.mixin",
   "mixins": [
+    "GlStateManagerAccess",
+    "GlStateManagerMixin",
     "FlipTexturesMixin",
     "ShaderPackParserMixin",
     "ShadersFramebufferMixin",
