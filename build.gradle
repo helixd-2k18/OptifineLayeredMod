@@ -34,7 +34,7 @@ dependencies {
 	modImplementation 'com.github.qouteall:OptiFabric:llama-SNAPSHOT'
 	modImplementation "com.github.Chocohead:Fabric-ASM:v2.1"
 
-	modImplementation name: 'OptiFine_1.16.5_HD_U_G7_pre4sc4'
+	modImplementation name: 'Optifine-mapped'
 	// PSA: Some older mods, compiled on Loom 0.2.1, might have outdated Maven POMs.
 	// You may need to force-disable transitiveness on them.
 
