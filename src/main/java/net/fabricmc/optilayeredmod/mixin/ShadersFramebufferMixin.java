@@ -105,11 +105,10 @@ public abstract class ShadersFramebufferMixin implements net.fabricmc.optilayere
         GL30.glGenerateMipmap(this.texTarget);
     }
 
-    @Redirect(remap = false, method="generateDepthMipmaps", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V"))
+    @Redirect(remap = false, method="generateDepthMipmaps", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V", remap = true))
     private void onGenerateDepthMipmapsBindTexture(int texture) throws IllegalAccessException {
         GlStateManagerUtils.bindTexture(this.texTarget, texture);
     }
-
 
     @Redirect(remap = false, method="generateColorMipmaps", at=@At(value = "INVOKE", target="Lorg/lwjgl/opengl/GL30;glTexParameteri(III)V", remap = false))
     private void onGenerateColorMipmapsTexParameter(int target, int pname, int param) {
@@ -121,19 +120,18 @@ public abstract class ShadersFramebufferMixin implements net.fabricmc.optilayere
         GL30.glGenerateMipmap(this.texTarget);
     }
 
-    @Redirect(remap = false, method="generateColorMipmaps", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V"))
+    @Redirect(remap = false, method="generateColorMipmaps", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V", remap = true))
     private void onGenerateColorMipmapsBindTexture(int texture) throws IllegalAccessException {
         GlStateManagerUtils.bindTexture(this.texTarget, texture);
     }
 
-
-    @Redirect(remap = false, method="flipColorTexture", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V"))
+    @Redirect(remap = false, method="flipColorTexture", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V", remap = true))
     private void onFlipColorTextureBindTexture(int texture) throws IllegalAccessException {
         GlStateManagerUtils.bindTexture(this.texTarget, texture);
     }
 
 
-    @Redirect(remap = false, method="setup", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V"))
+    @Redirect(remap = false, method="setup", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V", remap = true))
     private void onSetupBindTexture(int texture) throws IllegalAccessException {
         GlStateManagerUtils.bindTexture(this.texTarget, texture);
 
@@ -175,18 +173,18 @@ public abstract class ShadersFramebufferMixin implements net.fabricmc.optilayere
         GL11.glTexParameteri(this.texTarget, pname, param);
     }
 
-    @Redirect(remap = false, method="setColorBuffersFiltering", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V"))
+    @Redirect(remap = false, method="setColorBuffersFiltering", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V", remap = true))
     private void onSetColorBuffersFilteringBindTexture(int texture) throws IllegalAccessException {
         GlStateManagerUtils.bindTexture(this.texTarget, texture);
     }
 
 
-    @Redirect(remap = false, method="bindDepthTextures", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V"))
+    @Redirect(remap = false, method="bindDepthTextures", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V", remap = true))
     private void onBindDepthTextures(int texture) throws IllegalAccessException {
         GlStateManagerUtils.bindTexture(this.texTarget, texture);
     }
 
-    @Redirect(remap = false, method="bindColorTextures", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V"))
+    @Redirect(remap = false, method="bindColorTextures", at=@At(value = "INVOKE", target="Lcom/mojang/blaze3d/platform/GlStateManager;bindTexture(I)V", remap = true))
     private void onBindColorTextures(int texture) throws IllegalAccessException {
         GlStateManagerUtils.bindTexture(this.texTarget, texture);
     }
