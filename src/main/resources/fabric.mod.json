@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "optilayered",
   "version": "${version}",
 
   "name": "OptiLayeredMod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "description": "TODO",
   "authors": [
     "Me!"
   ],
